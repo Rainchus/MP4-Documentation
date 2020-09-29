@@ -1,0 +1,203 @@
+Mario Party 4
+
+Generally, this file is a mess and not well put together currently
+PowerPC/GC hacking is somewhat new to me so info is likely scattered and perhaps some of it incorrect
+
+
+Code at 8040xxxx is generally per board code
+8007-8009ish area is gloabl code which is always loaded
+From what I understand, all code comes from Start.dol
+
+
+8006f1cc ?
+801d4069 - u8 itemID to get from item space
+800837cc : bl	->0x8005FB90
+func_8005FB90 getRand out of 1.0? //probably not
+801d3778 s16 - dice block obj ID
+func_800868f4 - used when dice block is hit
+801E6BE8 - startOfStack
+801D4428 - globalTimer
+8018fcf8 - importantGlobalStruct
+8016AB78 float diceRoll //0.5-9.5 then round up because...???
+
+80054c64: bl	->0x80003490 //copy movie file header?
+
+RAM : ROM
+8018F8B0 : ptr to global strings file
+801D3425 : 15D800 start of a file for global strings?
+ROM C68911C - endmov_da0.thp file
+
+SHY GUY BOARD
+800308d0 - lis	r3, 0x8019
+800308d4 - subi	r31, r3, 1008 //ptr to first player struct
+
+
+///////////////////////////////////
+
+
+801D34BC - "Start!\x00"
+
+
+m401.dll - Manta Rings
+m402.dll - Slime Time
+m403.dll - Booksquirm
+m404.dll - Trace Race
+m405.dll - Mario Medley
+m406.dll - Avalanche!
+m407.dll - Domination
+m408.dll - Paratroopa Plunge
+m409.dll - Toad's Quick Draw
+m410.dll - Three Throw
+m411.dll - 
+
+8005797c - playmoviefile?
+801d3CC2 s16 - currentState? (if == 0002, end game )
+
+8012FDE0 - pointer to some dll files?
+
+typedef struct {
+/* 0x00 */ s8 	characterID;
+/* 0x01 */ s8 	unk01;
+/* 0x02 */ s8 	unk02;
+/* 0x03 */ s8 	unk03;
+/* 0x04 */ s8 	controllerPort;
+/* 0x05 */ s8 	item1;
+/* 0x06 */ s8 	item2;
+/* 0x07 */ s8 	item3;
+/* 0x08 */ s8 	flags;
+/* 0x09 */ s8 	placement; //0x80 1st, 0x20 2nd, 0x40 3rd, 0x60 4th
+/* 0x0A */ u8 	spacesLeftToMove;
+/* 0x10 */ s8 	nextABSSpaceIndex;
+/* 0x14 */ s8 	blueSpacesLanded;
+/* 0x15 */ s8 	redSpacesLanded;
+/* 0x16 */ s8 	happeningSpacesLanded;
+/* 0x17 */ s8 	chanceSpacesLanded;
+/* 0x19 */ s8 	battleSpacesLanded;
+/* 0x1A */ s8 	itemSpacesLanded;
+/* 0x1B */ s8 	springSpacesLanded;
+/* 0x1C */ s16	coins;
+/* 0x30 */ s16	totalCoinsCollected;
+/* 0x32 */ s16 	coinPeak;
+/* 0x3A */ s16 	stars;
+} playerMain;
+//size of 0x40
+P1 - 8018FC38
+P2 - 8018FC78
+P3 - 8018FCB8
+P4 - 8018FCF8
+
+typedef struct {
+/* 0x00 */ unk00[0x04];
+/* 0x04 */ curTurnCount;
+/* 0x05 */ maxTurnCount;
+/* 0x06 */ unk06[0x04];
+/* 0x0A */ curPlayerIndex;
+} globalStats; //8018fcf8
+
+typedef struct {
+/* 0x00 */ s8 ?
+/* 0x01 */ s8 PlayerRollLock; //prevents dice roll from decreasing if 1
+} diceBlockStatus;
+
+enum Item {
+/* 0x00 */ Item_MiniMushroom;
+/* 0x01 */ Item_Mushroom;
+/* 0x02 */ Item_SuperMiniMushroom;
+/* 0x03 */ Item_SuperMegaMushroom;
+/* 0x04 */ Item_MiniMegaHammer;
+/* 0x05 */ Item_WarpPipe;
+/* 0x06 */ Item_SwapCard;
+/* 0x07 */ Item_SparkySticker;
+/* 0x08 */ Item_Gaddlight;
+/* 0x09 */ Item_ChompCall;
+/* 0x0A */ Item_BowserSuit;
+/* 0x0B */ Item_BoosCrystalBall;
+/* 0x0C */ Item_MagicLamp;
+/* 0x0D */ Item_ItemBag;
+};
+
+
+enum characters {
+/* 0x00 */ Mario;
+/* 0x01 */ Mario;
+/* 0x02 */ Luigi;
+/* 0x03 */ Luigi;
+/* 0x04 */ Peach;
+/* 0x05 */ Peach;
+/* 0x06 */ Yoshi;
+/* 0x07 */ Yoshi;
+/* 0x08 */ Wario;
+/* 0x09 */ Wario;
+/* 0x0A */ DK;
+/* 0x0B */ DK;
+/* 0x0C */ Daisy;
+/* 0x0D */ Daisy;
+/* 0x0E */ Waluigi;
+/* 0x0F */ Waluigi;
+};
+
+enum npcPortraitID {
+/* 0x00 */ Toad;
+/* 0x01 */ Bob-omb;
+/* 0x02 */ ShyGuy;
+/* 0x03 */ Boo;
+/* 0x04 */ Goomba;
+/* 0x05 */ Bowser;
+/* 0x06 */ KoopaKid;
+/* 0x07 */ Koopa;
+/* 0x08 */ Klepto;
+/* 0x09 */ BlueBoo; //(?)
+/* 0x0A */ Dolphin;
+/* 0x0B */ Red Boo;
+/* 0x0C */ Thwomp;
+/* 0x0D */ ToadWithTie;
+/* 0x0E */ ShyGuyWithHat;
+/* 0x0F */ BooInCostume;
+/* 0x10 */ GoombaWithHat;
+/* 0x11 */ KoopaKid2;
+/* 0x12 */ KoopaWithTie;
+};
+
+enum messageStyle {
+/* 0x00 */ style0 //https://imgur.com/gmYOm3v
+/* 0x01 */ style1 //https://imgur.com/rVdSE2r
+/* 0x02 */ style2 //https://imgur.com/r45Gm1o
+/* 0x03 */ style3 //https://imgur.com/prTtpJd
+/* 0x04 */ style4 //https://imgur.com/euaS5Ld
+/* 0x05 */ style5 //https://imgur.com/6wfNewK
+/* 0x06 */ style6 //https://imgur.com/hHm1sMo
+/* 0x07 */ style7 //https://imgur.com/QuTJXFL
+/* 0x08 */ style8 //https://imgur.com/Jbp9iQ7
+/* 0x09 */ style9 //https://imgur.com/yC83Fbz
+}
+
+
+
+804305a0: bl	->0x80430D48 //shy guy event
+
+//im thinking different messageStyles may take different args
+For InitShowMessage
+r3: messageStyle
+r4: messageID (00160003) load group 16 message 3
+r5: npcPortraitID
+
+func_804324C0 - NegativeScreenColors
+func_80082d34 - ItemSpaceEvent
+func_80070530 - InitShowMessage //ISO 8B390
+func_800706E8 - ShowMessage
+func_80070738 - CloseMessage
+func_800e4014 - printDebugCrashInfo //one of many
+func_800057c0 - mainGameLoop //actual loop part is at 800058c0
+
+
+
+Start.dol documentation
+0x100 - 0x27C0 File1
+
+Build Date: %s %s
+Dec 17 2001
+
+//rng stuff? 8006e748
+//write rng? 80026564
+
+80086968 //dice block related
