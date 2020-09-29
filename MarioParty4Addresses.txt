@@ -19,6 +19,8 @@ func_800868f4 - used when dice block is hit
 801D4428 - globalTimer
 8018fcf8 - importantGlobalStruct
 8016AB78 float diceRoll //0.5-9.5 then round up because...???
+801D3AD0 - p1 1 frame button press
+801D3A9C - p1 buttons held
 
 80054c64: bl	->0x80003490 //copy movie file header?
 
@@ -76,21 +78,22 @@ typedef struct {
 /* 0x1A */ s8 	itemSpacesLanded;
 /* 0x1B */ s8 	springSpacesLanded;
 /* 0x1C */ s16	coins;
-/* 0x30 */ s16	totalCoinsCollected;
-/* 0x32 */ s16 	coinPeak;
-/* 0x3A */ s16 	stars;
+/* 0x20 */ s16	totalCoinsCollected;
+/* 0x22 */ s16 	coinPeak;
+/* 0x2A */ s16 	stars;
 } playerMain;
-//size of 0x40
+//size of 0x30
 P1 - 8018FC38
-P2 - 8018FC78
-P3 - 8018FCB8
-P4 - 8018FCF8
+P2 - 8018FC68
+P3 - 8018FC98
+P4 - 8018FCC8
 
 typedef struct {
 /* 0x00 */ unk00[0x04];
 /* 0x04 */ curTurnCount;
 /* 0x05 */ maxTurnCount;
 /* 0x06 */ unk06[0x04];
+/* 0x09 */ doubleCoinsOnSpaceBool;
 /* 0x0A */ curPlayerIndex;
 } globalStats; //8018fcf8
 
@@ -188,6 +191,7 @@ func_800706E8 - ShowMessage
 func_80070738 - CloseMessage
 func_800e4014 - printDebugCrashInfo //one of many
 func_800057c0 - mainGameLoop //actual loop part is at 800058c0
+func_8008a060 - handleInputWhileViewingItems
 
 
 
