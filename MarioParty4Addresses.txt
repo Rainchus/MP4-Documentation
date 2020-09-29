@@ -5,7 +5,7 @@ PowerPC/GC hacking is somewhat new to me so info is likely scattered and perhaps
 
 
 Code at 8040xxxx is generally per board code
-8007-8009ish area is gloabl code which is always loaded
+8007-8009ish area is global code which is always loaded
 From what I understand, all code comes from Start.dol
 
 
