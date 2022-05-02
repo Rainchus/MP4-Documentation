@@ -14,8 +14,7 @@ Code at 8040xxxx is generally per board code (rel files, basically a DLL)
 8006f1cc ?
 801d4069 - u8 itemID to get from item space
 800837cc : bl	->0x8005FB90
-func_
- getRand out of 1.0? //probably not
+func_800325f4 - randF (get random value 0 - 1.0f)
 801d3778 s16 - dice block obj ID
 func_800868f4 - used when dice block is hit
 801E6BE8 - startOfStack
