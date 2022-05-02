@@ -1,18 +1,21 @@
 Mario Party 4
 
-Generally, this file is a mess and not well put together currently
-PowerPC/GC hacking is somewhat new to me so info is likely scattered and perhaps some of it incorrect
+Code at 8040xxxx is generally per board code (rel files, basically a DLL)
+8007-8009ish area is global code which is always loaded (start.dol, static code)
 
+8012F7B5
 
-Code at 8040xxxx is generally per board code
-8007-8009ish area is global code which is always loaded
-From what I understand, all code comes from Start.dol
+8012FC52 - dll/mpexdll.rel (extra room)
+8012F7C8 - dll/instdll.rel
+8012FCBF - dll/nisdll.rel
+8012FD32 - dll/subchrseldll.rel (debug character select?)
 
 
 8006f1cc ?
 801d4069 - u8 itemID to get from item space
 800837cc : bl	->0x8005FB90
-func_8005FB90 getRand out of 1.0? //probably not
+func_
+ getRand out of 1.0? //probably not
 801d3778 s16 - dice block obj ID
 func_800868f4 - used when dice block is hit
 801E6BE8 - startOfStack
@@ -21,6 +24,7 @@ func_800868f4 - used when dice block is hit
 8016AB78 float diceRoll //0.5-9.5 then round up because...???
 801D3AD0 - p1 1 frame button press
 801D3A9C - p1 buttons held
+801677c0 - p1 data for boards (might be board specific? this was on koopa board)
 
 80054c64: bl	->0x80003490 //copy movie file header?
 
@@ -57,31 +61,54 @@ m411.dll -
 
 8012FDE0 - pointer to some dll files?
 
+typedef struct spaces {
+	/* 0x00 */ f32 xPos;
+	/* 0x04 */ f32 yPos;
+	/* 0x08 */ f32 zPos;
+	/* 0x0C */ char unk_0C[4];
+	/* 0x10 */ f32 unk_10;
+	/* 0x14 */ f32 unk_14;
+	/* 0x18 */ f32 unk_18;
+	/* 0x1C */ f32 pitch;
+	/* 0x20 */ f32 yaw;
+	/* 0x24 */ f32 roll;
+	/* 0x28 */ s16 spaceType;
+	/* 0x2A */ s16 ifJunction; //(behaves weirdly?)
+	/* 0x2C */ s16 spaceABSIndex;
+	/* 0x2E */ s16 unk_2E;
+	/* 0x30 */ char unk_30[8];
+} spaces; //sizeof 0x38
+//static space array, 8019da10
+
 typedef struct {
 /* 0x00 */ s8 	characterID;
 /* 0x01 */ s8 	unk01;
 /* 0x02 */ s8 	unk02;
 /* 0x03 */ s8 	unk03;
 /* 0x04 */ s8 	controllerPort;
-/* 0x05 */ s8 	item1;
-/* 0x06 */ s8 	item2;
-/* 0x07 */ s8 	item3;
+/* 0x05 */ s8 	items[3];
 /* 0x08 */ s8 	flags;
 /* 0x09 */ s8 	placement; //0x80 1st, 0x20 2nd, 0x40 3rd, 0x60 4th
 /* 0x0A */ u8 	spacesLeftToMove;
-/* 0x10 */ s8 	nextABSSpaceIndex;
+/* 0x0B */ char unk_0B[5];
+/* 0x10 */ s16 	nextABSSpaceIndex;
+/* 0x12 */ char unk_12[2];
 /* 0x14 */ s8 	blueSpacesLanded;
 /* 0x15 */ s8 	redSpacesLanded;
 /* 0x16 */ s8 	happeningSpacesLanded;
 /* 0x17 */ s8 	chanceSpacesLanded;
+/* 0x18 */ char unk_18;
 /* 0x19 */ s8 	battleSpacesLanded;
 /* 0x1A */ s8 	itemSpacesLanded;
 /* 0x1B */ s8 	springSpacesLanded;
 /* 0x1C */ s16	coins;
+/* 0x1E */ char unk_1E[2];
 /* 0x20 */ s16	totalCoinsCollected;
 /* 0x22 */ s16 	coinPeak;
+/* 0x24 */ char unk_24[6];
 /* 0x2A */ s16 	stars;
-} playerMain;
+/* 0x2C */ char unk_2C[4];
+} playerMain; //size of 0x30
 //size of 0x30
 P1 - 8018FC38
 P2 - 8018FC68
@@ -89,12 +116,12 @@ P3 - 8018FC98
 P4 - 8018FCC8
 
 typedef struct {
-/* 0x00 */ unk00[0x04];
-/* 0x04 */ curTurnCount;
-/* 0x05 */ maxTurnCount;
-/* 0x06 */ unk06[0x04];
-/* 0x09 */ doubleCoinsOnSpaceBool;
-/* 0x0A */ curPlayerIndex;
+/* 0x00 */ char unk00[0x04];
+/* 0x04 */ s8 curTurnCount;
+/* 0x05 */ s8 maxTurnCount;
+/* 0x06 */ char unk06[0x04];
+/* 0x09 */ s8 doubleCoinsOnSpaceBool;
+/* 0x0A */ s8 curPlayerIndex;
 } globalStats; //8018fcf8
 
 typedef struct {
@@ -179,20 +206,50 @@ enum messageStyle {
 804305a0: bl	->0x80430D48 //shy guy event
 
 //im thinking different messageStyles may take different args
-For InitShowMessage
+For showMessage
 r3: messageStyle
 r4: messageID (00160003) load group 16 message 3
 r5: npcPortraitID
 
+func_8002f454 - set_model_attributes
+r3 = model ptr
+r4 = 
+
+func_800bae5c - getTime //used for seeding initial rng
 func_804324C0 - NegativeScreenColors
 func_80082d34 - ItemSpaceEvent
-func_80070530 - InitShowMessage //ISO 8B390
-func_800706E8 - ShowMessage
+func_80070530 - showMessage //ISO 8B390
+func_800706E8 - showMessageInner
 func_80070738 - CloseMessage
 func_800e4014 - printDebugCrashInfo //one of many
 func_800057c0 - mainGameLoop //actual loop part is at 800058c0
 func_8008a060 - handleInputWhileViewingItems
-
+func_8000B150 - drawBox
+func_800CC0C0 - spriteShading?
+8002fc1c - print?
+80074034 - bctrl (handle event)
+8019da10 - spaceData
+func_8005fb40 - rand_int (r3 = range)
+//takes arg r3, range of number to choose
+/returns result on r3
+801D3F14 - RNG seed
+800d3e80 - loadSaveData (?) (maybe calcs checksum?)
+80003278 - initializeStack
+800bb2f4 - no idea
+80003490 - loadsStuff
+800033a8 - something
+800e7e60
+800e6bd0 code of interest here
+800bdca4 - somethingREL related?
+80032228 - call to LinkOS
+8041f180
+80032204 - call to DMA data to RAM
+80003278 - __init_registers
+8019d998 - assignCharacterIndexIDs? (used in game start after roll order is decided)
+8011F7C4 - beginning of rel file pointers
+	Format is:
+	0x00 - ptr to rel in memory
+	0x04 - offset into directory
 
 
 Start.dol documentation
@@ -200,8 +257,5 @@ Start.dol documentation
 
 Build Date: %s %s
 Dec 17 2001
-
-//rng stuff? 8006e748
-//write rng? 80026564
 
 80086968 //dice block related
